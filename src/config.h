@@ -53,7 +53,7 @@ static const int MAX_DEMOMAN_SIZE = 256;
 static const int DEMOMAN_SCALE_DIVISOR = 6;
 
 /* buh. don't want to be using ! $ . ? and etc */
-static const char* BASE_NAME = "SPlayer Window";
+static const char *BASE_NAME = "SPlayer Window";
 
 struct Color
 {

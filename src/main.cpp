@@ -38,8 +38,9 @@
 
 int main( int argc, char *argv[] )
 {
-	if (argc < 2) {
-		SDL_Log("Usage: %s <music file path>\n", argv[0]);
+	if ( argc < 2 )
+	{
+		SDL_Log( "Usage: %s <music file path>\n", argv[0] );
 		return 1; /* error!! */
 	}
 
@@ -98,22 +99,12 @@ int main( int argc, char *argv[] )
 	SDL_Renderer *cornerRenderers[4];
 
 	/* 4corners windows */
-	int x[4] = {
-		CORNER_PADDING,
-		usableBounds.w - CORNER_SIZE - CORNER_PADDING,
-		CORNER_PADDING,
-		usableBounds.w - CORNER_SIZE - CORNER_PADDING
-	};
+	int x[4] = { CORNER_PADDING, usableBounds.w - CORNER_SIZE - CORNER_PADDING, CORNER_PADDING, usableBounds.w - CORNER_SIZE - CORNER_PADDING };
 
-	int y[4] = {
-		CORNER_PADDING,
-		CORNER_PADDING,
-		usableBounds.h - CORNER_SIZE - CORNER_PADDING,
-		usableBounds.h - CORNER_SIZE - CORNER_PADDING
-	};
+	int y[4] = { CORNER_PADDING, CORNER_PADDING, usableBounds.h - CORNER_SIZE - CORNER_PADDING, usableBounds.h - CORNER_SIZE - CORNER_PADDING };
 
-	for (int i = 0; i < 4; i++)
-		corners[i] = SDL_CreateWindow(BASE_NAME, x[i], y[i], CORNER_SIZE, CORNER_SIZE, SDL_WINDOW_SHOWN);
+	for ( int i = 0; i < 4; i++ )
+		corners[i] = SDL_CreateWindow( BASE_NAME, x[i], y[i], CORNER_SIZE, CORNER_SIZE, SDL_WINDOW_SHOWN );
 
 	for ( int i = 0; i < 4; ++i )
 	{
@@ -218,9 +209,9 @@ int main( int argc, char *argv[] )
 		visualizer.renderBackground( backgroundRenderer, dm.w, dm.h, audioManager.getBackgroundVolume() );
 
 		/* THICC (with extra C) line */
-		SDL_SetRenderDrawColor(backgroundRenderer, 255, 255, 255, 255);
-		SDL_Rect bottomLine = { 0, dm.h - (dm.h / 11) - DEMOMAN_BOTTOM_MARGIN, dm.w, dm.h / 6 };
-		SDL_RenderFillRect(backgroundRenderer, &bottomLine);
+		SDL_SetRenderDrawColor( backgroundRenderer, 255, 255, 255, 255 );
+		SDL_Rect bottomLine = { 0, dm.h - ( dm.h / 11 ) - DEMOMAN_BOTTOM_MARGIN, dm.w, dm.h / 6 };
+		SDL_RenderFillRect( backgroundRenderer, &bottomLine );
 
 		demoman.render( backgroundRenderer, dm.w, dm.h, audioManager.getDuration() );
 
@@ -234,12 +225,14 @@ int main( int argc, char *argv[] )
 		SDL_RenderPresent( mainRenderer );
 
 		/* stick the corner windows */
-		for (int i = 0; i < 4; i++) {
+		for ( int i = 0; i < 4; i++ )
+		{
 			int wx, wy;
-			SDL_GetWindowPosition(corners[i], &wx, &wy);
+			SDL_GetWindowPosition( corners[i], &wx, &wy );
 
-			if (wx != x[i] || wy != y[i]) {
-				SDL_SetWindowPosition(corners[i], x[i], y[i]);
+			if ( wx != x[i] || wy != y[i] )
+			{
+				SDL_SetWindowPosition( corners[i], x[i], y[i] );
 			}
 		}
 
