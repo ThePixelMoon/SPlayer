@@ -40,10 +40,10 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt update
-            sudo apt install -y build-essential libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev
+            sudo apt install -y build-essential libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev pkg-config
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew update
-            brew install sdl2 sdl2_image sdl2_mixer
+            brew install sdl2 sdl2_image sdl2_mixer pkg-config
           fi
 
       - name: Setup vcpkg (Windows)
