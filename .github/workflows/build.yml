@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -51,12 +52,13 @@ jobs:
         with:
           vcpkgGitCommitId: '5b1214315250939257ef5d62ecdcbca18cf4fb1c'
 
-      - name: Configure & build (run-cmake)
-        uses: lukka/run-cmake@v10.8
+      - name: Configure & build
+        uses: lukka/run-cmake@v10
         with:
-          configurePreset: 'ninja-multi-vcpkg'
-          buildPreset: 'ninja-multi-vcpkg'
-          testPreset: 'ninja-multi-vcpkg'
+          cmakeListsTxtPath: './'
+          buildDirectory: 'build'
+          cmakeConfigureArgs: ${{ runner.os == 'Windows' && '-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake' || '' }}
+          cmakeBuildArgs: '--config Release'
 
       - name: Upload them artifacts
         uses: actions/upload-artifact@v4.6.2
