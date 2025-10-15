@@ -24,8 +24,8 @@
 
 	For more information, please refer to <https://unlicense.org>
 */
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>

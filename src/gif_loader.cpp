@@ -26,7 +26,7 @@
 */
 #include "gif_loader.h"
 #include "config.h"
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 #include <iostream>
 
 GifLoader::GifLoader() : width( 0 ), height( 0 ), frameCount( 0 ), currentFrame( 0 ), frameAccMs( 0 )

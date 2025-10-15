@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 static const int BASE_WIDTH = 400;
 static const int BASE_HEIGHT = 400;
