@@ -1,6 +1,6 @@
 {
   "name": "splayer",
-  "version": "0.2",
+  "version": "0.3",
   "dependencies": [
     "sdl2",
     "sdl2-image",

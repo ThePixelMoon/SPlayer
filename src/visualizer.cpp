@@ -74,6 +74,19 @@ void Visualizer::updateLines( int screenWidth, int screenHeight, float volume )
 	/* the lines are dead */
 	leftLines.erase( std::remove_if( leftLines.begin(), leftLines.end(), []( AudioLine &l ) { return l.alpha <= 0; } ), leftLines.end() );
 	rightLines.erase( std::remove_if( rightLines.begin(), rightLines.end(), []( AudioLine &l ) { return l.alpha <= 0; } ), rightLines.end() );
+
+	/* aaand voluem lines */
+	int numLines = screenWidth / lineSpacing;
+	volumeLines.resize( numLines );
+
+	static float phase = 0.0f;
+	phase += 0.05f;
+
+	for ( int i = 0; i < numLines; ++i )
+	{
+		float wave = sin(i*0.3f + phase);
+		volumeLines[i] = ((wave+1)/2) * (screenHeight/2) * volume;
+	}
 }
 
 void Visualizer::renderBackground( SDL_Renderer *renderer, int width, int height, float backgroundVolume )
@@ -97,6 +110,21 @@ void Visualizer::renderBackground( SDL_Renderer *renderer, int width, int height
 		SDL_SetRenderDrawColor( renderer, clampColor( globalColor.r * ( line.alpha / 255.0f ) ), clampColor( globalColor.g * ( line.alpha / 255.0f ) ), clampColor( globalColor.b * ( line.alpha / 255.0f ) ), 255 );
 		SDL_Rect rect = { static_cast< int >( line.x ), static_cast< int >( line.y ), static_cast< int >( line.width ), static_cast< int >( line.height ) };
 		SDL_RenderFillRect( renderer, &rect );
+	}
+}
+
+void Visualizer::renderVolumeLines( SDL_Renderer *renderer, int screenWidth, int screenHeight )
+{
+	SDL_SetRenderDrawColor( renderer, 255, 255, 255, 255 );
+
+	for ( size_t i = 0; i < volumeLines.size(); ++i )
+	{
+		int x = static_cast< int >( i * lineSpacing );
+		int lineHeight = static_cast< int >( volumeLines[i] );
+		int yTop = screenHeight / 2 - lineHeight / 2;
+		int yBottom = screenHeight / 2 + lineHeight / 2;
+
+		SDL_RenderDrawLine( renderer, x, yTop, x, yBottom );
 	}
 }
 

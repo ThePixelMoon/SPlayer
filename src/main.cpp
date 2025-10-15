@@ -36,6 +36,12 @@
 #include "visualizer.h"
 #include "demoman_controller.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl2.h"
+#include "imgui/imgui_impl_sdlrenderer2.h"
+
+static bool showTechOverlay = false;
+
 int main( int argc, char *argv[] )
 {
 	if ( argc < 2 )
@@ -51,6 +57,8 @@ int main( int argc, char *argv[] )
 	globalColor.r = std::rand() % 256;
 	globalColor.g = std::rand() % 256;
 	globalColor.b = std::rand() % 256;
+
+	float bgColor[3] = { globalColor.r / 255.0f, globalColor.g / 255.0f, globalColor.b / 255.0f };
 
 	if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER ) < 0 )
 	{
@@ -85,8 +93,17 @@ int main( int argc, char *argv[] )
 		return 1;
 	}
 
-	SDL_Window	 *backgroundWindow = SDL_CreateWindow( "bg", 0, 0, dm.w, dm.h, SDL_WINDOW_SHOWN | SDL_WINDOW_BORDERLESS /*| SDL_WINDOW_FULLSCREEN*/ );
+	SDL_Window	 *backgroundWindow = SDL_CreateWindow( "bg", 0, 0, dm.w, dm.h, SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP );
 	SDL_Renderer *backgroundRenderer = SDL_CreateRenderer( backgroundWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplSDL2_InitForSDLRenderer(backgroundWindow, backgroundRenderer);
+	ImGui_ImplSDLRenderer2_Init(backgroundRenderer);
 
 	SDL_Window *mainWindow = SDL_CreateWindow( BASE_NAME, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, BASE_WIDTH, BASE_HEIGHT, SDL_WINDOW_SHOWN /*| SDL_WINDOW_RESIZABLE*/ );
 	SDL_SetWindowAlwaysOnTop( mainWindow, SDL_TRUE );
@@ -100,15 +117,11 @@ int main( int argc, char *argv[] )
 
 	/* 4corners windows */
 	int x[4] = { CORNER_PADDING, usableBounds.w - CORNER_SIZE - CORNER_PADDING, CORNER_PADDING, usableBounds.w - CORNER_SIZE - CORNER_PADDING };
-
 	int y[4] = { CORNER_PADDING, CORNER_PADDING, usableBounds.h - CORNER_SIZE - CORNER_PADDING, usableBounds.h - CORNER_SIZE - CORNER_PADDING };
 
 	for ( int i = 0; i < 4; i++ )
-		corners[i] = SDL_CreateWindow( BASE_NAME, x[i], y[i], CORNER_SIZE, CORNER_SIZE, SDL_WINDOW_SHOWN );
-
-	for ( int i = 0; i < 4; ++i )
 	{
-		SDL_SetWindowAlwaysOnTop( corners[i], SDL_TRUE );
+		corners[i] = SDL_CreateWindow( BASE_NAME, x[i], y[i], CORNER_SIZE, CORNER_SIZE, SDL_WINDOW_HIDDEN );
 		cornerRenderers[i] = SDL_CreateRenderer( corners[i], -1, SDL_RENDERER_ACCELERATED );
 	}
 
@@ -141,6 +154,9 @@ int main( int argc, char *argv[] )
 	bool	  running = true;
 	SDL_Event event;
 
+	SDL_RaiseWindow(backgroundWindow);
+	SDL_SetWindowInputFocus(backgroundWindow);
+
 	while ( running )
 	{
 		Uint64 now = SDL_GetTicks64();
@@ -153,6 +169,8 @@ int main( int argc, char *argv[] )
 
 		while ( SDL_PollEvent( &event ) )
 		{
+    		ImGui_ImplSDL2_ProcessEvent(&event);
+
 			switch ( event.type )
 			{
 			case SDL_QUIT:
@@ -161,13 +179,11 @@ int main( int argc, char *argv[] )
 
 			case SDL_KEYDOWN:
 				if ( event.key.keysym.sym == SDLK_ESCAPE )
-				{
 					running = false;
-				}
 				else if ( event.key.keysym.sym == SDLK_SPACE )
-				{
 					audioManager.togglePause();
-				}
+				else if (event.key.keysym.sym == SDLK_F7)
+					showTechOverlay = !showTechOverlay;
 				break;
 
 			case SDL_MOUSEBUTTONDOWN:
@@ -207,7 +223,35 @@ int main( int argc, char *argv[] )
 		demoman.update( dm.w, demoman.isDragging() );
 
 		visualizer.renderBackground( backgroundRenderer, dm.w, dm.h, audioManager.getBackgroundVolume() );
+		visualizer.renderVolumeLines( backgroundRenderer, dm.w, dm.h );
 		demoman.render( backgroundRenderer, dm.w, dm.h, audioManager.getDuration() );
+
+		/* for imgui */
+		globalColor.r = static_cast<Uint8>(bgColor[0] * 255);
+		globalColor.g = static_cast<Uint8>(bgColor[1] * 255);
+		globalColor.b = static_cast<Uint8>(bgColor[2] * 255);
+		visualizer.SetColor(globalColor);
+
+		ImGui_ImplSDLRenderer2_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+		if (showTechOverlay)
+		{
+			ImGui::Begin("Technical Info", &showTechOverlay, ImGuiWindowFlags_AlwaysAutoResize);
+
+			ImGui::Text("Song: %s", musicPath);
+			ImGui::Text("Length: %.2f seconds", audioManager.getDuration());
+			ImGui::Text("Current volume: %.2f", audioManager.getSmoothVolume());
+			ImGui::Text("Background volume: %.2f", audioManager.getBackgroundVolume());
+
+    		ImGui::ColorEdit3("Background Color", bgColor);
+
+			ImGui::End();
+		}
+
+		ImGui::Render();
+		ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), backgroundRenderer);
 
 		SDL_RenderPresent( backgroundRenderer );
 
@@ -240,6 +284,9 @@ int main( int argc, char *argv[] )
 		SDL_DestroyRenderer( cornerRenderers[i] );
 		SDL_DestroyWindow( corners[i] );
 	}
+	ImGui_ImplSDLRenderer2_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 	SDL_DestroyRenderer( mainRenderer );
 	SDL_DestroyWindow( mainWindow );
 	SDL_DestroyRenderer( backgroundRenderer );

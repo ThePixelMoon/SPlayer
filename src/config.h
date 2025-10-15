@@ -42,15 +42,7 @@ static const int BASELINE_MARGIN = 20;
 static const int BASELINE_HEIGHT = 4;
 static const int BASELINE_OFFSET = 40;
 
-/* on win, windows can be placed on top of the explorer
-   so, just make it 0. on the other hand, AKA, KDE,
-   it cannot be placed on top of the 'explorer' or whatever
-   its called so we set it to 40 for an optimal effect */
-#ifdef _WIN32
 static const int DEMOMAN_BOTTOM_MARGIN = 0;
-#else
-static const int DEMOMAN_BOTTOM_MARGIN = 40;
-#endif
 
 static const int AUDIO_FREQUENCY = 44100;
 static const int AUDIO_CHUNKSIZE = 2048;

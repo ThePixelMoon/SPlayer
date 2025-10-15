@@ -47,11 +47,20 @@ public:
 	void renderBackground( SDL_Renderer *renderer, int width, int height, float backgroundVolume );
 	void renderMainWindow( SDL_Renderer *renderer, int &width, int &height, float smoothVolume, float backgroundVolume );
 	void renderCorners( SDL_Renderer *renderers[4], float smoothVolume );
+	void renderVolumeLines( SDL_Renderer *renderer, int screenWidth, int screenHeight );
+
+	void SetColor(Color color)
+	{
+		globalColor = color;
+	}
 
 private:
 	Color					 globalColor;
 	std::vector< AudioLine > leftLines;
 	std::vector< AudioLine > rightLines;
+
+	std::vector< float > volumeLines;
+	int					 lineSpacing = 10;
 
 	Uint8 clampColor( float v );
 };
