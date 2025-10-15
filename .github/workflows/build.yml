@@ -9,39 +9,57 @@ on:
 
 jobs:
   build:
-
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+          - os: macos-latest
+            triplet: x64-osx
+          - os: windows-latest
+            triplet: x64-windows
 
     runs-on: ${{ matrix.os }}
+    env:
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+      VCPKG_DISABLE_METRICS: 1
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-      - name: Install dependencies (Linux/macOS)
+      - name: Install CMake & Ninja
+        uses: lukka/get-cmake@v4
+
+      - name: Install system SDL2 packages
         if: runner.os != 'Windows'
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt update
-            sudo apt install -y build-essential cmake libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev
+            sudo apt install -y build-essential libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew update
-            brew install cmake sdl2 sdl2_image sdl2_mixer
+            brew install sdl2 sdl2_image sdl2_mixer
           fi
 
-      - name: Install dependencies (Windows)
+      - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
-        run: |
-          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"' -y
-          choco install sdl2 sdl2_image sdl2_mixer -y
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: '5b1214315250939257ef5d62ecdcbca18cf4fb1c'
 
-      - name: Create build directory
-        run: mkdir -p build
+      - name: Configure & build (run-cmake)
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: 'ninja-multi-vcpkg'
+          buildPreset: 'ninja-multi-vcpkg'
+          testPreset: 'ninja-multi-vcpkg'
 
-      - name: Configure CMake
-        run: cmake -S . -B build
-
-      - name: Build project
-        run: cmake --build build --config Release
+      - name: Upload them artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ runner.os }}
+          path: build/**
