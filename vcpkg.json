@@ -1,5 +1,5 @@
 {
-  "name": "SPlayer",
+  "name": "splayer",
   "version": "0.1",
   "dependencies": [
     "sdl2",
