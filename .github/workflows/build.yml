@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install CMake & Ninja
-        uses: lukka/get-cmake@v4
+        uses: lukka/get-cmake@v4.1.2
 
       - name: Install system SDL2 packages
         if: runner.os != 'Windows'
@@ -47,19 +47,19 @@ jobs:
 
       - name: Setup vcpkg (Windows)
         if: runner.os == 'Windows'
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@v11.5
         with:
           vcpkgGitCommitId: '5b1214315250939257ef5d62ecdcbca18cf4fb1c'
 
       - name: Configure & build (run-cmake)
-        uses: lukka/run-cmake@v10
+        uses: lukka/run-cmake@v10.8
         with:
           configurePreset: 'ninja-multi-vcpkg'
           buildPreset: 'ninja-multi-vcpkg'
           testPreset: 'ninja-multi-vcpkg'
 
       - name: Upload them artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: build-${{ runner.os }}
           path: build/**
