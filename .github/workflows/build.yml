@@ -52,13 +52,19 @@ jobs:
         with:
           vcpkgGitCommitId: '5b1214315250939257ef5d62ecdcbca18cf4fb1c'
 
-      - name: Configure & build
-        uses: lukka/run-cmake@v10
-        with:
-          cmakeListsTxtPath: './'
-          buildDirectory: 'build'
-          cmakeConfigureArgs: ${{ runner.os == 'Windows' && '-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake' || '' }}
-          cmakeBuildArgs: '--config Release'
+      - name: Configure CMake
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+              cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+          else
+              cmake -S . -B build
+          fi
+
+      - name: Build project
+        shell: bash
+        run: |
+          cmake --build build --config Release
 
       - name: Upload them artifacts
         uses: actions/upload-artifact@v4.6.2
