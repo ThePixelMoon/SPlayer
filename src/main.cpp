@@ -207,12 +207,6 @@ int main( int argc, char *argv[] )
 		demoman.update( dm.w, demoman.isDragging() );
 
 		visualizer.renderBackground( backgroundRenderer, dm.w, dm.h, audioManager.getBackgroundVolume() );
-
-		/* THICC (with extra C) line */
-		SDL_SetRenderDrawColor( backgroundRenderer, 255, 255, 255, 255 );
-		SDL_Rect bottomLine = { 0, dm.h - ( dm.h / 11 ) - DEMOMAN_BOTTOM_MARGIN, dm.w, dm.h / 6 };
-		SDL_RenderFillRect( backgroundRenderer, &bottomLine );
-
 		demoman.render( backgroundRenderer, dm.w, dm.h, audioManager.getDuration() );
 
 		SDL_RenderPresent( backgroundRenderer );

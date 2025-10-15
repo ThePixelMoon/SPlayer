@@ -1,9 +1,10 @@
 {
   "name": "splayer",
-  "version": "0.1",
+  "version": "0.2",
   "dependencies": [
     "sdl2",
     "sdl2-image",
-    "sdl2-mixer"
+    "sdl2-mixer",
+	"pkgconf"
   ]
 }
